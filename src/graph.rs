@@ -2,21 +2,17 @@ use crate::rand::BoolRng;
 
 pub struct Graph {
   pub size: usize,
-  data: Vec<bool>,
+  data: Vec<Vec<usize>>,
 }
 
 impl Graph {
-  pub fn get(&self, row: usize, col: usize) -> bool {
-    self.data[row * self.size + col]
+  fn add_edge(&mut self, a: usize, b: usize) {
+    self.data[a].push(b);
+    self.data[b].push(a);
   }
 
-  pub fn set(
-    &mut self,
-    row: usize,
-    col: usize,
-    value: bool,
-  ) {
-    self.data[row * self.size + col] = value
+  pub fn get_neighbors(&self, i: usize) -> &Vec<usize> {
+    &self.data[i]
   }
 
   fn max_data_density(&self) -> f32 {
@@ -29,12 +25,11 @@ impl Graph {
 
     for i in 0..self.size {
       for j in 0..self.size {
+        // If i > j it already was added.
         if i < j {
-          self.set(i, j, bool_rng.sample());
-        } else if i == j {
-          self.set(i, j, false);
-        } else {
-          self.set(i, j, self.get(j, i));
+          if bool_rng.sample() {
+            self.add_edge(i, j);
+          }
         }
       }
     }
@@ -43,7 +38,7 @@ impl Graph {
   pub fn new(size: usize, density: f32) -> Graph {
     let mut graph = Graph {
       size,
-      data: vec![false; size * size],
+      data: vec![vec![]; size],
     };
 
     graph.fill(density);

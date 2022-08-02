@@ -1,9 +1,10 @@
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::ThreadRng;
 
-/// # Examples
+/// Random boolean generator
 /// ```
 /// let mut bool_rng = BoolRng::new(0.5);
+/// let is_true: bool = bool_rng.sample();
 /// ```
 pub struct BoolRng {
   uniform_rng: Uniform<usize>,
@@ -12,6 +13,7 @@ pub struct BoolRng {
 }
 
 impl BoolRng {
+  /// Receives the probability of yielding `true`.
   pub fn new(probability: f32) -> BoolRng {
     let uniform_rng: Uniform<usize> =
       Uniform::from(0..usize::MAX);
