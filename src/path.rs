@@ -55,9 +55,8 @@ pub fn count_vertices(
   start: usize,
   end: usize,
   max_size: usize,
-) -> Vec<usize> {
-  let mut count = vec![0; graph.size];
-
+  count: &mut Vec<usize>
+) {
   let mut remaining_vertices = (0..graph.size)
     .filter(|i| *i != start)
     .collect::<Vec<_>>();
@@ -71,8 +70,6 @@ pub fn count_vertices(
     max_size,
     &mut path,
     &mut remaining_vertices,
-    &mut count,
+    count,
   );
-
-  count
 }

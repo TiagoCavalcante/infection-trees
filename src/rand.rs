@@ -1,6 +1,10 @@
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::ThreadRng;
 
+/// # Examples
+/// ```
+/// let mut bool_rng = BoolRng::new(0.5);
+/// ```
 pub struct BoolRng {
   uniform_rng: Uniform<usize>,
   rng: ThreadRng,
@@ -22,5 +26,33 @@ impl BoolRng {
 
   pub fn sample(&mut self) -> bool {
     self.uniform_rng.sample(&mut self.rng) < self.threshold
+  }
+}
+
+/// # Example
+/// ```
+/// let mut vertex_rng = OneOfRng::new(vec![-7, 0, 10, 14]);
+/// ```
+pub struct OneOfRng<T> {
+  uniform_rng: Uniform<usize>,
+  rng: ThreadRng,
+  possible: Vec<T>,
+}
+
+impl<T> OneOfRng<T> {
+  pub fn new(possible: Vec<T>) -> OneOfRng<T> {
+    let uniform_rng: Uniform<usize> =
+      Uniform::from(0..possible.len());
+    let rng: ThreadRng = rand::thread_rng();
+
+    OneOfRng {
+      uniform_rng,
+      rng,
+      possible,
+    }
+  }
+
+  pub fn sample(&mut self) -> &T {
+    &self.possible[self.uniform_rng.sample(&mut self.rng)]
   }
 }
