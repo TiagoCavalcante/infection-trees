@@ -1,4 +1,5 @@
 mod graph;
+mod path;
 mod rand;
 
 fn main() {
