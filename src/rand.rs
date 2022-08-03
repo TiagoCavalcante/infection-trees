@@ -35,26 +35,26 @@ impl BoolRng {
 /// ```
 /// let mut vertex_rng = OneOfRng::new(vec![-7, 0, 10, 14]);
 /// ```
-pub struct OneOfRng<T> {
+pub struct _OneOfRng<T> {
   uniform_rng: Uniform<usize>,
   rng: ThreadRng,
   possible: Vec<T>,
 }
 
-impl<T> OneOfRng<T> {
-  pub fn new(possible: Vec<T>) -> OneOfRng<T> {
+impl<T> _OneOfRng<T> {
+  pub fn _new(possible: Vec<T>) -> _OneOfRng<T> {
     let uniform_rng: Uniform<usize> =
       Uniform::from(0..possible.len());
     let rng: ThreadRng = rand::thread_rng();
 
-    OneOfRng {
+    _OneOfRng {
       uniform_rng,
       rng,
       possible,
     }
   }
 
-  pub fn sample(&mut self) -> &T {
+  pub fn _sample(&mut self) -> &T {
     &self.possible[self.uniform_rng.sample(&mut self.rng)]
   }
 }

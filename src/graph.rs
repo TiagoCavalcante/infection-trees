@@ -11,8 +11,41 @@ impl Graph {
     self.data[b].push(a);
   }
 
-  pub fn get_neighbors(&self, i: usize) -> &Vec<usize> {
-    &self.data[i]
+  pub fn get_neighbors(
+    &self,
+    vertex: usize,
+  ) -> &Vec<usize> {
+    &self.data[vertex]
+  }
+
+  pub fn pop_vertex(
+    &mut self,
+    vertex: usize,
+  ) -> Vec<usize> {
+    let neighbors = self.data[vertex].clone();
+
+    for neighbor in &neighbors {
+      let position = self.data[*neighbor]
+        .iter()
+        .position(|v| *v == vertex)
+        .unwrap();
+
+      self.data[*neighbor].remove(position);
+    }
+
+    self.data[vertex].clear();
+
+    neighbors
+  }
+
+  pub fn add_edges(
+    &mut self,
+    vertex: usize,
+    neighbors: &Vec<usize>,
+  ) {
+    for neighbor in neighbors {
+      self.add_edge(vertex, *neighbor);
+    }
   }
 
   fn max_data_density(&self) -> f32 {
