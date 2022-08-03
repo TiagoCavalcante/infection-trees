@@ -27,32 +27,45 @@ fn main() {
   )
   .unwrap();
 
-  let mut vertices = path
+  // Collect the edges of the path between the first and the
+  // last marked vertices.
+  // We are removing those edges because to build a valid
+  // tree, a vertex can only be used once.
+  let mut edges = path
     .iter()
     .map(|vertex| graph.pop_edges(*vertex))
     .collect::<Vec<_>>();
 
+  // Iterate over all marked vertices except the first and
+  // the last.
   for vertex in &marked[1..marked.len() - 1] {
     let mut found = false;
 
-    for (i, start) in path.clone().iter().enumerate() {
-      graph.add_edges(*start, &vertices[i]);
+    for (index, start) in path.clone().iter().enumerate() {
+      // Restore the edges between the current vertex and
+      // its neighbors as a path can't start at a
+      // unconnected vertex.
+      // This vertex is still going to be used once because
+      // a vertex can have more than 1 child in the tree.
+      graph.add_edges(*start, &edges[index]);
 
-      if let Some(new_path) =
-        shortest_path(&graph, *start, *vertex)
-      {
-        found = true;
-        graph.pop_edges(*start);
-        path.extend(&new_path);
+      match shortest_path(&graph, *start, *vertex) {
+        Some(new_path) => {
+          found = true;
 
-        for vertex in new_path {
-          vertices.push(graph.pop_edges(vertex));
+          path.extend(&new_path);
+
+          for vertex in new_path {
+            edges.push(graph.pop_edges(vertex));
+          }
         }
-
-        break;
+        None => continue,
       }
 
+      // Remove the edges again.
       graph.pop_edges(*start);
+      // If we reached here is because a path was found.
+      break;
     }
 
     if !found {
