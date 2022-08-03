@@ -30,31 +30,3 @@ impl BoolRng {
     self.uniform_rng.sample(&mut self.rng) < self.threshold
   }
 }
-
-/// # Example
-/// ```
-/// let mut vertex_rng = OneOfRng::new(vec![-7, 0, 10, 14]);
-/// ```
-pub struct _OneOfRng<T> {
-  uniform_rng: Uniform<usize>,
-  rng: ThreadRng,
-  possible: Vec<T>,
-}
-
-impl<T> _OneOfRng<T> {
-  pub fn _new(possible: Vec<T>) -> _OneOfRng<T> {
-    let uniform_rng: Uniform<usize> =
-      Uniform::from(0..possible.len());
-    let rng: ThreadRng = rand::thread_rng();
-
-    _OneOfRng {
-      uniform_rng,
-      rng,
-      possible,
-    }
-  }
-
-  pub fn _sample(&mut self) -> &T {
-    &self.possible[self.uniform_rng.sample(&mut self.rng)]
-  }
-}

@@ -18,10 +18,9 @@ impl Graph {
     &self.data[vertex]
   }
 
-  pub fn pop_vertex(
-    &mut self,
-    vertex: usize,
-  ) -> Vec<usize> {
+  /// Returns the neighbors of `vertex` and remove the edges
+  /// between `vertex` and its neighbors.
+  pub fn pop_edges(&mut self, vertex: usize) -> Vec<usize> {
     let neighbors = self.data[vertex].clone();
 
     for neighbor in &neighbors {
@@ -38,6 +37,16 @@ impl Graph {
     neighbors
   }
 
+  /// Add edges between `vertex` and each neighbor of
+  /// `neighbors`, it is usually used in conjunction with
+  /// `pop_edges`.
+  /// ```
+  /// let neighbors = graph.pop_edges(vertex);
+  /// let path_without_vertex =
+  ///   path::shortest_path(&graph, a, b);
+  /// // Restore the vertex.
+  /// graph.add_edges(vertex, neighbors);
+  /// ```
   pub fn add_edges(
     &mut self,
     vertex: usize,
