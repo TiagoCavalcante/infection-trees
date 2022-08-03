@@ -1,4 +1,4 @@
-# valid-graphs
+# infection-trees
 
 Generate infection-trees for big graphs in a few seconds
 
