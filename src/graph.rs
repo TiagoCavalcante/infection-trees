@@ -6,9 +6,25 @@ pub struct Graph {
 }
 
 impl Graph {
-  fn add_edge(&mut self, a: usize, b: usize) {
+  pub fn add_edge(&mut self, a: usize, b: usize) {
     self.data[a].push(b);
     self.data[b].push(a);
+  }
+
+  pub fn remove_edge(&mut self, a: usize, b: usize) {
+    let b_position =
+      self.data[a].iter().position(|v| *v == b).unwrap();
+    // Remove b from a.
+    self.data[a].remove(b_position);
+
+    // Remove a from b.
+    let a_position =
+      self.data[b].iter().position(|v| *v == a).unwrap();
+    self.data[b].remove(a_position);
+  }
+
+  pub fn has_edge(&self, a: usize, b: usize) -> bool {
+    self.data[a].iter().position(|v| *v == b).is_some()
   }
 
   pub fn get_neighbors(
