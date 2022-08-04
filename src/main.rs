@@ -9,7 +9,7 @@ fn main() {
 
   let mut size_rng = rand::UniformRng::new(5, 15);
 
-  let mut bool_rng = rand::BoolRng::new(0.02);
+  let mut bool_rng = rand::BoolRng::new(0.01);
   let marked = (0..size)
     .filter_map(|i| {
       if bool_rng.sample() {

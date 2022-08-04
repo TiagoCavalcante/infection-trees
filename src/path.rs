@@ -1,33 +1,42 @@
 use crate::graph::Graph;
 
-/// Breadth First Search
+/// Implementation of the Breadth First Search.
+/// See https://en.wikipedia.org/wiki/Breadth-first_search
+/// This scans the graph level by level, passing through
+/// each vertex at most once.
+/// It stops when the end vertex is reached.
+/// The distances to each vertex from the start are stored
+/// in the `distance` vector, that is initialized to
+/// `usize::MAX`.
+/// The predecessors of each vertex are stored in the
+/// `predecessor` vector, that is also initilized to
+/// `usize::MAX`, so if the predecessor of a node is
+/// `usize::MAX` then that node was never reached.
+/// This modifies the `distance` and `predecessor` vectors.
+/// Returns `true` if `start` and `end` are connected and
+/// `false` otherwise.
 fn bfs(
   graph: &Graph,
   start: usize,
   end: usize,
   predecessor: &mut Vec<usize>,
-  distance: &mut Vec<usize>,
 ) -> bool {
   // A queue to maintain the vertices whose adjacency list
   // is to be scanned as per normal DFS algorithm.
   let mut queue = std::collections::VecDeque::new();
 
-  // Stores the information whether ith vertex is reached at
-  // least once in the Breadth First Search.
-  let mut visited = vec![false; graph.size];
+  // Here usize::MAX is used to indicate infinite distance.
+  let mut distance = vec![usize::MAX; graph.size];
 
-  // The start is the first to be visited and the distance
-  // from the start to itself is 0.
-  visited[start] = true;
+  // The distance from the start to itself is 0.
   distance[start] = 0;
   queue.push_back(start);
 
-  // Standard BFS algorithm
-  // See https://en.wikipedia.org/wiki/Breadth-first_search.
+  // Standard BFS algorithm.
   while let Some(current) = queue.pop_front() {
     for vertex in graph.get_neighbors(current) {
-      if !visited[*vertex] {
-        visited[*vertex] = true;
+      // If it wasn't visited.
+      if distance[*vertex] == usize::MAX {
         distance[*vertex] = distance[current] + 1;
         predecessor[*vertex] = current;
         queue.push_back(*vertex);
@@ -59,11 +68,8 @@ pub fn shortest_path(
   // Here usize::MAX is used to indicate that there is no
   // predecessor.
   let mut predecessor = vec![usize::MAX; graph.size];
-  // Here usize::MAX is used to indicate infinite distance.
-  let mut distance = vec![usize::MAX; graph.size];
 
-  if bfs(graph, start, end, &mut predecessor, &mut distance)
-  {
+  if bfs(graph, start, end, &mut predecessor) {
     let mut path = vec![end];
     let mut current = end;
     while predecessor[current] != usize::MAX {
