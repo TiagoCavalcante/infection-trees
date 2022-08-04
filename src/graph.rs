@@ -15,16 +15,16 @@ impl Graph {
     let b_position =
       self.data[a].iter().position(|v| *v == b).unwrap();
     // Remove b from a.
-    self.data[a].remove(b_position);
+    self.data[a].swap_remove(b_position);
 
     // Remove a from b.
     let a_position =
       self.data[b].iter().position(|v| *v == a).unwrap();
-    self.data[b].remove(a_position);
+    self.data[b].swap_remove(a_position);
   }
 
   pub fn has_edge(&self, a: usize, b: usize) -> bool {
-    self.data[a].iter().position(|v| *v == b).is_some()
+    self.data[a].iter().any(|v| *v == b)
   }
 
   pub fn get_neighbors(
@@ -45,7 +45,7 @@ impl Graph {
         .position(|v| *v == vertex)
         .unwrap();
 
-      self.data[*neighbor].remove(position);
+      self.data[*neighbor].swap_remove(position);
     }
 
     self.data[vertex].clear();
@@ -60,7 +60,7 @@ impl Graph {
   /// let neighbors = graph.pop_edges(vertex);
   /// let path_without_vertex =
   ///   path::shortest_path(&graph, a, b);
-  /// // Restore the vertex.
+  /// // Restore the edges.
   /// graph.add_edges(vertex, neighbors);
   /// ```
   pub fn add_edges(
