@@ -114,7 +114,7 @@ pub fn yen(
         let mut nodes = vec![];
 
         for p in paths.iter() {
-          if p.len() > i
+          if p.len() > i + 1
             && equal_paths(&root_path, &p[0..i].to_vec())
           {
             // Remove the links that are part of the

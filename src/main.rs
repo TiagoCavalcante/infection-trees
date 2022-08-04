@@ -3,13 +3,13 @@ mod path;
 mod rand;
 
 fn main() {
-  let density = 0.05;
+  let density = 0.01;
   let size = 3000;
   let mut graph = graph::Graph::new(size, density);
 
   let mut size_rng = rand::UniformRng::new(5, 15);
 
-  let mut bool_rng = rand::BoolRng::new(0.01);
+  let mut bool_rng = rand::BoolRng::new(0.02);
   let marked = (0..size)
     .filter_map(|i| {
       if bool_rng.sample() {
