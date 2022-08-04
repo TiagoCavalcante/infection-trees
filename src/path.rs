@@ -101,14 +101,14 @@ pub fn yen(
   if let Some(shortest) = shortest_path(&graph, start, end)
   {
     let mut paths = vec![shortest];
-    let mut b: Vec<Vec<usize>> = vec![];
+    let mut candidates: Vec<Vec<usize>> = vec![];
 
     for k in 1..=graph.size - length {
       // The spur node ranges from the first node to the
       // next to last node in the previous k-shortest path.
       let last_length = paths[k - 1].len();
 
-      for i in 0..last_length - 2 {
+      for i in 0..last_length - 1 {
         // Spur node is retrieved from the previous
         // k-shortest path, k − 1.
         let spur_node = paths[k - 1][i];
@@ -151,12 +151,12 @@ pub fn yen(
           total_path.extend(spur_path);
 
           // Add the potential k-shortest path to the heap.
-          if b
+          if candidates
             .iter()
             .find(|path| equal_paths(path, &total_path))
             .is_none()
           {
-            b.push(total_path);
+            candidates.push(total_path);
           }
 
           // Add back the edges and nodes that were removed
@@ -172,7 +172,27 @@ pub fn yen(
         }
       }
 
-      if b.is_empty() {
+      if let Some((index, shortest)) = candidates
+        .iter()
+        .enumerate()
+        .min_by_key(|(_, path)| path.len())
+      {
+        if shortest.len() == length {
+          return Some(shortest.clone());
+        }
+
+        if shortest.len() > length {
+          // If the last path was smaller than length and the
+          // current path is greater than length, then no
+          // paths with the desired length exist.
+          return None;
+        }
+
+        // Add the lowest cost path becomes the k-shortest
+        // path.
+        paths.push(shortest.clone());
+        candidates.swap_remove(index);
+      } else {
         // This handles the case of there being no spur
         // paths, or no spur paths left.
         // This could happen if the spur paths have already
@@ -182,15 +202,6 @@ pub fn yen(
         // lie along a "dead end".
         break;
       }
-
-      b.sort();
-      if b[0].len() == length {
-        return Some(b[0].clone());
-      }
-      // Add the lowest cost path becomes the k-shortest
-      // path.
-      paths.push(b[0].clone());
-      b.swap_remove(0);
     }
 
     None
