@@ -114,10 +114,12 @@ pub fn yen(
         let mut nodes = vec![];
 
         for p in paths.iter() {
-          if p.len() >= root_path.len()
+          if p.len() > i
             && equal_paths(&root_path, &p[0..i].to_vec())
           {
-            // Remove the links that are part of the previous shortest paths which share the same root path.
+            // Remove the links that are part of the
+            // previous shortest paths which share
+            // the same root path.
             if graph.has_edge(p[i], p[i + 1]) {
               graph.remove_edge(p[i], p[i + 1]);
               edges.push((p[i], p[i + 1]));
@@ -131,12 +133,14 @@ pub fn yen(
           }
         }
 
-        // Calculate the spur path from the spur node to the sink.
-        // Consider also checking if any spurPath found
+        // Calculate the spur path from the spur node to the
+        // end.
+        // Consider also checking if any spur_path found.
         if let Some(spur_path) =
           shortest_path(graph, spur_node, end)
         {
-          // Entire path is made up of the root path and spur path.
+          // Entire path is made up of the root path and
+          // spur path.
           let mut total_path = root_path.clone();
           total_path.extend(spur_path);
 
@@ -149,7 +153,8 @@ pub fn yen(
             b.push(total_path);
           }
 
-          // Add back the edges and nodes that were removed from the graph.
+          // Add back the edges and nodes that were removed
+          // from the graph.
           for (a, b) in edges {
             graph.add_edge(a, b);
           }
@@ -162,23 +167,23 @@ pub fn yen(
       }
 
       if b.is_empty() {
-        // This handles the case of there being no spur paths, or no spur paths left.
-        // This could happen if the spur paths have already been exhausted (added to A),
-        // or there are no spur paths at all - such as when both the source and sink vertices
+        // This handles the case of there being no spur
+        // paths, or no spur paths left.
+        // This could happen if the spur paths have already
+        // been exhausted (added to paths),
+        // or there are no spur paths at all - such as when
+        // both the source and sink vertices
         // lie along a "dead end".
         break;
       }
 
-      if let Some(path) =
-        b.iter().find(|path| path.len() == length)
-      {
-        return Some(path.clone());
-      }
-
       b.sort();
-      // Add the lowest cost path becomes the k-shortest path.
+      if b[0].len() == length {
+        return Some(b[0].clone());
+      }
+      // Add the lowest cost path becomes the k-shortest
+      // path.
       paths.push(b[0].clone());
-      // In fact we should rather use shift since we are removing the first element
       b.swap_remove(0);
     }
 
