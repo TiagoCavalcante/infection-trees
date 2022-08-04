@@ -1,29 +1,31 @@
-use crate::path::shortest_path;
-
 mod graph;
 mod path;
 mod rand;
 
 fn main() {
-  let density = 0.01;
+  let density = 0.05;
   let size = 3000;
   let mut graph = graph::Graph::new(size, density);
 
-  let mut bool_rng = rand::BoolRng::new(0.2);
+  let mut size_rng = rand::UniformRng::new(5, 15);
+
+  let mut bool_rng = rand::BoolRng::new(0.005);
   let marked = (0..size)
     .filter_map(|i| {
       if bool_rng.sample() {
-        Some(i)
+        Some((i, size_rng.sample()))
       } else {
         None
       }
     })
     .collect::<Vec<_>>();
+  println!("number of marked = {}", marked.len());
 
-  let mut path = shortest_path(
-    &graph,
-    *marked.first().unwrap(),
-    *marked.last().unwrap(),
+  let mut path = path::yen(
+    &mut graph,
+    marked.first().unwrap().0,
+    marked.last().unwrap().0,
+    marked.last().unwrap().1,
   )
   .unwrap();
 
@@ -49,7 +51,9 @@ fn main() {
       // a vertex can have more than 1 child in the tree.
       graph.add_edges(*start, &edges[index]);
 
-      match shortest_path(&graph, *start, *vertex) {
+      match path::yen(
+        &mut graph, *start, vertex.0, vertex.1,
+      ) {
         Some(new_path) => {
           found = true;
 

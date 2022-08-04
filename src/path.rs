@@ -79,3 +79,111 @@ pub fn shortest_path(
     None
   }
 }
+
+fn equal_paths(a: &Vec<usize>, b: &Vec<usize>) -> bool {
+  a.iter().zip(b).all(|(a, b)| *a == *b)
+}
+
+/// Use Yen algorithm for find a path with length `length`.
+/// Returns None if this path doesn't exist.
+pub fn yen(
+  graph: &mut Graph,
+  start: usize,
+  end: usize,
+  length: usize,
+) -> Option<Vec<usize>> {
+  if let Some(shortest) = shortest_path(&graph, start, end)
+  {
+    let mut paths = vec![shortest];
+    let mut b: Vec<Vec<usize>> = vec![];
+
+    for k in 1..=graph.size - length {
+      // The spur node ranges from the first node to the
+      // next to last node in the previous k-shortest path.
+      let last_length = paths[k - 1].len();
+
+      for i in 0..last_length - 2 {
+        // Spur node is retrieved from the previous
+        // k-shortest path, k − 1.
+        let spur_node = paths[k - 1][i];
+        // The sequence of nodes from the source to the spur
+        // node of the previous k-shortest path.
+        let root_path = paths[k - 1][0..i].to_vec();
+
+        let mut edges = vec![];
+        let mut nodes = vec![];
+
+        for p in paths.iter() {
+          if p.len() >= root_path.len()
+            && equal_paths(&root_path, &p[0..i].to_vec())
+          {
+            // Remove the links that are part of the previous shortest paths which share the same root path.
+            if graph.has_edge(p[i], p[i + 1]) {
+              graph.remove_edge(p[i], p[i + 1]);
+              edges.push((p[i], p[i + 1]));
+            }
+          }
+        }
+
+        for node in &root_path {
+          if *node != spur_node {
+            nodes.push(graph.pop_edges(*node));
+          }
+        }
+
+        // Calculate the spur path from the spur node to the sink.
+        // Consider also checking if any spurPath found
+        if let Some(spur_path) =
+          shortest_path(graph, spur_node, end)
+        {
+          // Entire path is made up of the root path and spur path.
+          let mut total_path = root_path.clone();
+          total_path.extend(spur_path);
+
+          // Add the potential k-shortest path to the heap.
+          if b
+            .iter()
+            .find(|path| equal_paths(path, &total_path))
+            .is_none()
+          {
+            b.push(total_path);
+          }
+
+          // Add back the edges and nodes that were removed from the graph.
+          for (a, b) in edges {
+            graph.add_edge(a, b);
+          }
+
+          for (node, neighbors) in nodes.iter().enumerate()
+          {
+            graph.add_edges(node, neighbors)
+          }
+        }
+      }
+
+      if b.is_empty() {
+        // This handles the case of there being no spur paths, or no spur paths left.
+        // This could happen if the spur paths have already been exhausted (added to A),
+        // or there are no spur paths at all - such as when both the source and sink vertices
+        // lie along a "dead end".
+        break;
+      }
+
+      if let Some(path) =
+        b.iter().find(|path| path.len() == length)
+      {
+        return Some(path.clone());
+      }
+
+      b.sort();
+      // Add the lowest cost path becomes the k-shortest path.
+      paths.push(b[0].clone());
+      // In fact we should rather use shift since we are removing the first element
+      b.swap_remove(0);
+    }
+
+    None
+  } else {
+    None
+  }
+}
