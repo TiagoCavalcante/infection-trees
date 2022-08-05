@@ -21,9 +21,8 @@ fn main() -> std::io::Result<()> {
 
   for vertex in 0..graph.size {
     for neighbor in graph.get_neighbors(vertex) {
-      graph_file.write(
-        format_edge(vertex, *neighbor).as_bytes(),
-      )?;
+      graph_file
+        .write(format_edge(vertex, *neighbor).as_bytes())?;
     }
   }
 
@@ -70,6 +69,11 @@ fn main() -> std::io::Result<()> {
   for vertex in &marked[1..marked.len() - 1] {
     let mut found = false;
 
+    if path.iter().position(|&v| v == vertex.0).is_some() {
+      // This marked vertex is already in the path.
+      continue;
+    }
+
     for (index, start) in path.clone().iter().enumerate() {
       // Restore the edges between the current vertex and
       // its neighbors as a path can't start at a
@@ -83,10 +87,6 @@ fn main() -> std::io::Result<()> {
       ) {
         Some(new_path) => {
           found = true;
-
-          tree_file.write(
-            format_edge(*start, new_path[0]).as_bytes(),
-          )?;
 
           for index in 0..new_path.len() - 1 {
             tree_file.write(
@@ -116,11 +116,11 @@ fn main() -> std::io::Result<()> {
     }
 
     if !found {
-      panic!("Couldn't find a valid graph");
+      panic!("Couldn't find a valid tree");
     }
   }
 
-  println!("We have found a valid graph!");
+  println!("We have found a valid tree!");
 
   Ok(())
 }
