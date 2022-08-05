@@ -17,7 +17,16 @@ fn in_path(
   return false;
 }
 
-pub fn fixed_length_bfs(
+/// Fixed length search algorithm.
+/// For understanding this algorithm I recommend you to
+/// study first how the BFS algorithm works.
+/// See https://en.wikipedia.org/wiki/Breadth-first_search
+/// ```
+/// let path =
+///   path::fixed_length_search(&graph, start, end, length);
+/// println!("{:?}", path.unwrap_or(vec![]));
+/// ```
+pub fn fixed_length_search(
   graph: &Graph,
   start: usize,
   end: usize,
@@ -25,10 +34,14 @@ pub fn fixed_length_bfs(
 ) -> Option<Vec<usize>> {
   let distance = length - 1;
 
+  // Predecessor vector as in a normal BFS algorithm.
   let mut predecessor_from_start =
     vec![usize::MAX; graph.size];
+  // Distance vector as in a normal BFS algorithm.
   let mut distance_to_start = vec![usize::MAX; graph.size];
 
+  // Differently from the BFS algorithm we need to keep the
+  // distances to both the start and the end.
   let mut predecessor_from_end =
     vec![usize::MAX; graph.size];
   let mut distance_to_end = vec![usize::MAX; graph.size];
@@ -41,11 +54,15 @@ pub fn fixed_length_bfs(
   distance_to_start[start] = 0;
   queue.push_front(start);
 
-  // Standard BFS algorithm
+  // [Almost] Standard BFS algorithm
   // See https://en.wikipedia.org/wiki/Breadth-first_search.
   // Note that in the BFS algorithm the queue must be
-  // first in last out.
+  // first in first out.
   while let Some(current) = queue.pop_front() {
+    // Possible optimization for graphs where all vertex are
+    // reachable from the start: keep count on how many
+    // vertices were visited and stop once that number is
+    // equal to the total number of vertices.
     for vertex in graph.get_neighbors(current) {
       // If the distance is usize::MAX then that vertex was
       // never reached before.
@@ -53,9 +70,23 @@ pub fn fixed_length_bfs(
         distance_to_start[*vertex] =
           distance_to_start[current] + 1;
         predecessor_from_start[*vertex] = current;
+        // In a normal BFS algorithm we would stop if
+        // vertex is the end, but in the fixed length search
+        // we need to know the distance to each vertex from
+        // the start.
         queue.push_back(*vertex);
       }
     }
+  }
+
+  // Return early if this node can't be reached or if its
+  // shortest path length is bigger than the desired length.
+  // Note that we don't need to directly check if
+  // distance_to_start[end] == usize::MAX because if it is
+  // equal to usize::MAX then it is bigger than the
+  // distance.
+  if distance_to_start[end] > distance {
+    return None;
   }
 
   // Here we are starting from the end and going to the
@@ -70,7 +101,7 @@ pub fn fixed_length_bfs(
   // length.
   // We want it to be exactly equal to the length, but we
   // won't get there so easy.
-  // Contrary to BFS, here the queue must be first in first
+  // Contrary to BFS, here the queue must be first last out
   // out, otherwise it could (and that almost always happen)
   // change the path to a vertex without updating its
   // distance, so when it finds a path with the correct
