@@ -50,7 +50,6 @@ fn main() -> std::io::Result<()> {
   .unwrap();
 
   for index in 0..path.len() - 1 {
-    dbg!(path[index], path[index + 1]);
     tree_file.write(
       format_edge(path[index], path[index + 1]).as_bytes(),
     )?;
@@ -86,16 +85,16 @@ fn main() -> std::io::Result<()> {
       continue;
     }
 
-    for (index, start) in path.clone().iter().enumerate() {
+    for (index, &start) in path.clone().iter().enumerate() {
       // Restore the edges between the current vertex and
       // its neighbors as a path can't start at a
       // unconnected vertex.
       // This vertex is still going to be used once because
       // a vertex can have more than 1 child in the tree.
-      graph.add_edges(*start, &edges[index]);
+      graph.add_edges(start, &edges[index]);
 
       if let Some(new_path) = path::fixed_length_search(
-        &graph, *start, vertex.0, vertex.1,
+        &graph, start, vertex.0, vertex.1,
       ) {
         found = true;
 
