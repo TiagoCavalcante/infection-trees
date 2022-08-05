@@ -82,36 +82,33 @@ fn main() -> std::io::Result<()> {
       // a vertex can have more than 1 child in the tree.
       graph.add_edges(*start, &edges[index]);
 
-      match path::fixed_length_search(
+      if let Some(new_path) = path::fixed_length_search(
         &graph, *start, vertex.0, vertex.1,
       ) {
-        Some(new_path) => {
-          found = true;
+        found = true;
 
-          for index in 0..new_path.len() - 1 {
-            tree_file.write(
-              format_edge(
-                new_path[index],
-                new_path[index + 1],
-              )
-              .as_bytes(),
-            )?;
-          }
-
-          path.extend(&new_path);
-
-          for vertex in new_path {
-            edges.push(graph.pop_edges(vertex));
-          }
-
-          // Remove the edges again.
-          graph.pop_edges(*start);
-          break;
+        for index in 0..new_path.len() - 1 {
+          tree_file.write(
+            format_edge(
+              new_path[index],
+              new_path[index + 1],
+            )
+            .as_bytes(),
+          )?;
         }
-        None => {
-          // Remove the edges again.
-          graph.pop_edges(*start);
+
+        path.extend(&new_path);
+
+        for vertex in new_path {
+          edges.push(graph.pop_edges(vertex));
         }
+
+        // Remove the edges again.
+        graph.pop_edges(*start);
+        break;
+      } else {
+        // Remove the edges again.
+        graph.pop_edges(*start);
       }
     }
 
