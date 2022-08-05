@@ -13,7 +13,7 @@ fn format_edge(a: usize, b: usize) -> String {
 
 fn main() -> std::io::Result<()> {
   let density = 0.1;
-  let size = 50;
+  let size = 300;
   let mut graph = graph::Graph::new(size, density);
 
   let mut graph_file = File::create("graph.txt")?;
@@ -27,7 +27,7 @@ fn main() -> std::io::Result<()> {
     }
   }
 
-  let mut size_rng = rand::UniformRng::new(7, 8);
+  let mut size_rng = rand::UniformRng::new(5, 11);
 
   let mut bool_rng = rand::BoolRng::new(0.05);
   let marked = (0..size)
