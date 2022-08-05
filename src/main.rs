@@ -1,15 +1,26 @@
 #![allow(arithmetic_overflow)]
 
+use std::fs::File;
+use std::io::prelude::*;
+
 mod graph;
 mod path;
 mod rand;
 
-fn main() {
-  let density = 0.05;
-  let size = 300;
+fn main() -> std::io::Result<()> {
+  let density = 0.1;
+  let size = 50;
   let mut graph = graph::Graph::new(size, density);
 
-  let mut size_rng = rand::UniformRng::new(5, 8);
+  let mut file = File::create("graph.txt")?;
+
+  for vertex in 0..graph.size {
+    for neighbor in graph.get_neighbors(vertex) {
+      file.write(format!("{vertex} {neighbor}\n").as_bytes());
+    }
+  }
+
+  let mut size_rng = rand::UniformRng::new(4, 7);
 
   let mut bool_rng = rand::BoolRng::new(0.2);
   let marked = (0..size)
@@ -30,6 +41,8 @@ fn main() {
     marked.last().unwrap().1,
   )
   .unwrap();
+
+  println!("{:?}", path);
 
   // Collect the edges of the path between the first and the
   // last marked vertices.
@@ -59,6 +72,8 @@ fn main() {
         Some(new_path) => {
           found = true;
 
+          println!("{start} -> {:?}", new_path);
+
           path.extend(&new_path);
 
           for vertex in new_path {
@@ -82,4 +97,6 @@ fn main() {
   }
 
   println!("We have found a valid graph!");
+
+  Ok(())
 }

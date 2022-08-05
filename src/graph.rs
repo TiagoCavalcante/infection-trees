@@ -2,7 +2,7 @@ use crate::rand::UniformRng;
 
 pub struct Graph {
   pub size: usize,
-  data: Vec<Vec<usize>>,
+  pub data: Vec<Vec<usize>>,
 }
 
 impl Graph {
