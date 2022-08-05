@@ -7,22 +7,29 @@ mod graph;
 mod path;
 mod rand;
 
+fn format_edge(a: usize, b: usize) -> String {
+  format!("{} {}\n", a, b)
+}
+
 fn main() -> std::io::Result<()> {
   let density = 0.1;
-  let size = 30;
+  let size = 50;
   let mut graph = graph::Graph::new(size, density);
 
-  let mut file = File::create("graph.txt")?;
+  let mut graph_file = File::create("graph.txt")?;
+  let mut tree_file = File::create("tree.txt")?;
 
   for vertex in 0..graph.size {
     for neighbor in graph.get_neighbors(vertex) {
-      file.write(format!("{vertex} {neighbor}\n").as_bytes());
+      graph_file.write(
+        format_edge(vertex, *neighbor).as_bytes(),
+      )?;
     }
   }
 
-  let mut size_rng = rand::UniformRng::new(4, 7);
+  let mut size_rng = rand::UniformRng::new(7, 8);
 
-  let mut bool_rng = rand::BoolRng::new(0.2);
+  let mut bool_rng = rand::BoolRng::new(0.05);
   let marked = (0..size)
     .filter_map(|i| {
       if bool_rng.sample() {
@@ -32,6 +39,7 @@ fn main() -> std::io::Result<()> {
       }
     })
     .collect::<Vec<_>>();
+
   println!("number of marked = {}", marked.len());
 
   let mut path = path::fixed_length_search(
@@ -42,7 +50,11 @@ fn main() -> std::io::Result<()> {
   )
   .unwrap();
 
-  println!("{:?}", path);
+  for index in 0..path.len() - 1 {
+    tree_file.write(
+      format_edge(path[index], path[index + 1]).as_bytes(),
+    )?;
+  }
 
   // Collect the edges of the path between the first and the
   // last marked vertices.
@@ -72,7 +84,19 @@ fn main() -> std::io::Result<()> {
         Some(new_path) => {
           found = true;
 
-          println!("{start} -> {:?}", new_path);
+          tree_file.write(
+            format_edge(*start, new_path[0]).as_bytes(),
+          )?;
+
+          for index in 0..new_path.len() - 1 {
+            tree_file.write(
+              format_edge(
+                new_path[index],
+                new_path[index + 1],
+              )
+              .as_bytes(),
+            )?;
+          }
 
           path.extend(&new_path);
 
