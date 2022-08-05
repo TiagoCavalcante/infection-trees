@@ -15,5 +15,5 @@ The path between the first and the last marked vertices is obtained with the BFS
 ## How to run?
 
 ```sh
-$ cargo run
+$ cargo run --release && ./tests.py
 ```

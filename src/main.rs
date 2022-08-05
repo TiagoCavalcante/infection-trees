@@ -28,7 +28,7 @@ fn main() -> std::io::Result<()> {
 
   let mut size_rng = rand::UniformRng::new(5, 11);
 
-  let mut bool_rng = rand::BoolRng::new(0.05);
+  let mut bool_rng = rand::BoolRng::new(0.1);
   let marked = (0..size)
     .filter_map(|i| {
       if bool_rng.sample() {
@@ -50,10 +50,22 @@ fn main() -> std::io::Result<()> {
   .unwrap();
 
   for index in 0..path.len() - 1 {
+    dbg!(path[index], path[index + 1]);
     tree_file.write(
       format_edge(path[index], path[index + 1]).as_bytes(),
     )?;
   }
+
+  // Ensure that the path contain no loops.
+  let mut unique = path.clone();
+  // We need a sorted vector to use dedup.
+  unique.sort();
+  unique.dedup();
+  // If the path had loops then the length of the unique
+  // vector would be smaller than the length of the path.
+  assert_eq!(path.len(), unique.len());
+
+  tree_file.write("\n".as_bytes())?;
 
   // Collect the edges of the path between the first and the
   // last marked vertices.
@@ -61,7 +73,7 @@ fn main() -> std::io::Result<()> {
   // tree, a vertex can only be used once.
   let mut edges = path
     .iter()
-    .map(|vertex| graph.pop_edges(*vertex))
+    .map(|&vertex| graph.pop_edges(vertex))
     .collect::<Vec<_>>();
 
   // Iterate over all marked vertices except the first and
@@ -104,11 +116,11 @@ fn main() -> std::io::Result<()> {
         }
 
         // Remove the edges again.
-        graph.pop_edges(*start);
+        graph.pop_edges(start);
         break;
       } else {
         // Remove the edges again.
-        graph.pop_edges(*start);
+        graph.pop_edges(start);
       }
     }
 
