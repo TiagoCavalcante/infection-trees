@@ -1,13 +1,15 @@
+#![allow(arithmetic_overflow)]
+
 mod graph;
 mod path;
 mod rand;
 
 fn main() {
   let density = 0.1;
-  let size = 300;
+  let size = 10000;
   let mut graph = graph::Graph::new(size, density);
 
-  let mut size_rng = rand::UniformRng::new(3, 6);
+  let mut size_rng = rand::UniformRng::new(6, 11);
 
   let mut bool_rng = rand::BoolRng::new(0.1);
   let marked = (0..size)
@@ -21,8 +23,8 @@ fn main() {
     .collect::<Vec<_>>();
   println!("number of marked = {}", marked.len());
 
-  let mut path = path::yen(
-    &mut graph,
+  let mut path = path::fixed_length_bfs(
+    &graph,
     marked.first().unwrap().0,
     marked.last().unwrap().0,
     marked.last().unwrap().1,
@@ -51,8 +53,8 @@ fn main() {
       // a vertex can have more than 1 child in the tree.
       graph.add_edges(*start, &edges[index]);
 
-      match path::yen(
-        &mut graph, *start, vertex.0, vertex.1,
+      match path::fixed_length_bfs(
+        &graph, *start, vertex.0, vertex.1,
       ) {
         Some(new_path) => {
           found = true;
@@ -62,14 +64,16 @@ fn main() {
           for vertex in new_path {
             edges.push(graph.pop_edges(vertex));
           }
-        }
-        None => continue,
-      }
 
-      // Remove the edges again.
-      graph.pop_edges(*start);
-      // If we reached here is because a path was found.
-      break;
+          // Remove the edges again.
+          graph.pop_edges(*start);
+          break;
+        }
+        None => {
+          // Remove the edges again.
+          graph.pop_edges(*start);
+        }
+      }
     }
 
     if !found {
