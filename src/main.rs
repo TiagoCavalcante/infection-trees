@@ -9,7 +9,7 @@ mod rand;
 
 fn main() -> std::io::Result<()> {
   let density = 0.1;
-  let size = 50;
+  let size = 30;
   let mut graph = graph::Graph::new(size, density);
 
   let mut file = File::create("graph.txt")?;
